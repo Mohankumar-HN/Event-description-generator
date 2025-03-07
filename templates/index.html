@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Description Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <script>
+        async function generateEventDescription(event) {
+            event.preventDefault(); // Prevent form submission refresh
+        
+            let formData = new FormData(document.getElementById("eventForm"));
+        
+            try {
+                let response = await fetch("/generate", {
+                    method: "POST",
+                    body: formData
+                });
+        
+                if (!response.ok) {
+                    throw new Error("Failed to generate event description.");
+                }
+        
+                let result = await response.json();
+        
+                // Display output on the frontend
+                let outputDiv = document.getElementById("output");
+                outputDiv.innerHTML = `
+                    <h2>Generated Event Description</h2>
+                    <ul>
+                        ${result.generated_event_description.map(item => `<li>${item}</li>`).join("")}
+                    </ul>
+        
+                    <h2>Social Media Post</h2>
+                    <p>${result.social_media_post.join("<br>")}</p>
+                `;
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("output").innerHTML = `<p style="color:red;">Error generating event description.</p>`;
+            }
+        }
+        
+    </script>
+</head>
+<body>
+    <div class="logo-container" style="display: flex; justify-content: center; margin-bottom: 20px; margin-top: 10px;">
+        <div>
+            <img src="{{ url_for('static', path='IVIS_logo.png') }}" alt="IVIS Logo" style="width: 300px;">
+        </div>
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            <img src="{{ url_for('static', path='NIE_University.png') }}" alt="NIE University Logo" style="width: 150px;">
+            <img src="{{ url_for('static', path='PULSE LOGO.png') }}" alt="Pulse Logo" style="width: 150px;">
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Event Description Generator</h1>
+        <form id="eventForm" onsubmit="generateEventDescription(event)">
+            <label for="event_name">Event Name:</label>
+            <input type="text" id="event_name" name="event_name" required>
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="audience">Audience:</label>
+            <input type="text" id="audience" name="audience" required>
+
+            <label for="key_attractions">Key Attractions:</label>
+            <input type="text" id="key_attractions" name="key_attractions" required>
+
+            <label for="event_type">Event Type:</label>
+            <select id="event_type" name="event_type">
+                <option value="formal">Formal</option>
+                <option value="casual">Casual</option>
+                <option value="hybrid">Hybrid</option>
+            </select>
+            <br>
+            <button type="submit">Generate</button>
+        </form>
+
+        <div id="output"></div> <br>
+        <footer style="
+    text-align: center; 
+    font-style: italic; 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #333; 
+    padding: 10px; 
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.2);
+">
+    Provided by IVIS LABS Pvt Ltd
+</footer>
+
+            
+            
+    </div>
+</body>
+</html>
